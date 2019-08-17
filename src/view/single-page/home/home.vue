@@ -22,7 +22,7 @@
           </Row>
           <Row>
             <Col span="24">
-            <Table stripe border :columns="columns" :data="inputList"></Table>
+            <Table stripe border :columns="columns" :data="this.inputList"></Table>
             </Col>
           </Row>
         </div>
@@ -57,9 +57,20 @@ export default {
       formdep: [],
       kpi: [],
       formkpi: [],
-      inputList: [],
+      inputList: [
+        {
+          kpi: '',
+          t_value: '',
+          l_limit: ''
+        },
+        {
+          kpi: '',
+          t_value: '90',
+          l_limit: '80'
+        }
+      ],
       monthList: [],
-      kpiList: [],
+      kpiList: {},
       t_value: [],
       l_limit: [],
       form: {
@@ -78,6 +89,7 @@ export default {
           title: '指标名称',
           align: 'center',
           render: (h, params) => {
+            console.log(params, 6666)
             return h('span', {}, params.row.kpi)
           }
         },
@@ -126,36 +138,55 @@ export default {
           // }]
           // let arr = Object.keys(obj).map(key => obj[key])
           let tem = Object.entries(res.data[this.form.name])
-          console.log(tem, 22222222)
           for (let i = 0; i < tem.length; i++) {
-            let kpi_month = Object.entries(tem[i][1].r_value)[i]
-            this.monthList.push(kpi_month[0])
-            this.kpiList.push(kpi_month[1])
-            this.t_value.push(tem[i][1].t_value)
-            this.l_limit.push(tem[i][1].l_limit)
-            this.kpi.push(tem[i][0])
-            // let te = new Map()
-            // te.set(i, { t_value: this.t_value, monthList: this.monthList, kpiList: this.kpiList })
-            // this.myTe = te
+            this.kpiList['kpi'] = tem[i][0]
+            this.kpiList['l_limit'] = tem[i][1].l_limit
+            this.kpiList['t_value'] = tem[i][1].t_value
           }
-          this.columsInit()
-          let myArray = []
-          let myObject = {}
-          for (let i = 0; i < this.monthList.length; i++) {
-            let key = this.monthList[i]
-            let val = this.kpiList[i]
-            myObject[key] = val
-          }
-          myArray = {
-            't_value': this.t_value[0],
-            'l_limit': this.l_limit[0],
-            'kpi': this.kpi
-          }
-          console.log(myArray, this.myTe, 66666)
-          this.inputList = [Object.assign(myArray, myObject)]
+          this.inputList[3] = this.kpiList
+          console.log(this.inputList, 90909090)
         }
       )
     },
+    // handelPostGroupKpi () {
+    //   let data = this.form
+    //   selectData(data).then(
+    //     res => {
+    //       // for (let i =0; i < res.data.length; i++) {
+    //       //   console.log(res.data[i], 888888)
+    //       // }]
+    //       // let arr = Object.keys(obj).map(key => obj[key])
+    //       let tem = Object.entries(res.data[this.form.name])
+    //       for (let i = 0; i < tem.length; i++) {
+    //         let kpi_month = Object.entries(tem[i][1].r_value)[i]
+    //         this.monthList.push(kpi_month[0])
+    //         this.kpiList.push(kpi_month[1])
+    //         this.t_value.push(tem[i][1].t_value)
+    //         this.l_limit.push(tem[i][1].l_limit)
+    //         this.kpi.push(tem[i][0])
+    //         // let te = new Map()
+    //         // te.set(i, { t_value: this.t_value, monthList: this.monthList, kpiList: this.kpiList })
+    //         // this.myTe = te
+    //       }
+    //       // this.columsInit()
+    //       let myArray = []
+    //       let myObject = {}
+    //       for (let i = 0; i < this.monthList.length; i++) {
+    //         let key = this.monthList[i]
+    //         let val = this.kpiList[i]
+    //         myObject[key] = val
+    //       }
+    //       myArray = {
+    //         't_value': this.t_value[0],
+    //         'l_limit': this.l_limit[0],
+    //         'kpi': this.kpi
+    //       }
+    //       this.inputList = [Object.assign(myArray, myObject)]
+    //       console.log(this.inputList)
+    //       console.log(typeof (this.inputList))
+    //     }
+    //   )
+    // },
     // handelgetInputList () {
     //   getInputList(this.form).then(
     //     res => {
