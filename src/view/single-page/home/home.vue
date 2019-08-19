@@ -57,18 +57,7 @@ export default {
       formdep: [],
       kpi: [],
       formkpi: [],
-      inputList: [
-        {
-          kpi: '',
-          t_value: '',
-          l_limit: ''
-        },
-        {
-          kpi: '',
-          t_value: '90',
-          l_limit: '80'
-        }
-      ],
+      inputList: [],
       monthList: [],
       kpiList: {},
       t_value: [],
@@ -89,7 +78,6 @@ export default {
           title: '指标名称',
           align: 'center',
           render: (h, params) => {
-            console.log(params, 6666)
             return h('span', {}, params.row.kpi)
           }
         },
@@ -98,14 +86,15 @@ export default {
           key: '下限值',
           align: 'center',
           render: (h, params) => {
-            return h('span', {}, params.row.l_limit)
+            console.log(params)
+            return h('span', {}, params.row.value.l_limit)
           }
         },
         {
           title: '目标值',
           align: 'center',
           render: (h, params) => {
-            return h('span', {}, params.row.t_value)
+            return h('span', {}, params.row.value.t_value)
           }
         }
       ]
@@ -133,18 +122,68 @@ export default {
       let data = this.form
       selectData(data).then(
         res => {
-          // for (let i =0; i < res.data.length; i++) {
-          //   console.log(res.data[i], 888888)
-          // }]
-          // let arr = Object.keys(obj).map(key => obj[key])
-          let tem = Object.entries(res.data[this.form.name])
-          for (let i = 0; i < tem.length; i++) {
-            this.kpiList['kpi'] = tem[i][0]
-            this.kpiList['l_limit'] = tem[i][1].l_limit
-            this.kpiList['t_value'] = tem[i][1].t_value
+          let result = Object.entries(Object.entries(res.data)[0][1]).map(([key, value]) => {
+            return { value: value, kpi: key }
+          })
+          for (let i = result.length - 1; i >= 0; i--) {
+            let ab = result[i].value.r_value
+            let abc = Object.entries(ab)
+            console.log(abc, 88888)
+            for (let y = result[i].value.r_value.length - 1; y >= 0; y--) {
+              console.log(result[i].value.r_value.length[1])
+              this.columns.splice(4, 0, {
+                title: this.monthList[y],
+                key: this.monthList[y],
+                align: 'center',
+                render: (h, params) => {
+                  let t_value = this.t_value[0]
+                  let l_limit = this.l_limit[0]
+                  const month = this.kpiList[y]
+                  // 做数据大小的判断,显示不同的颜色,并且return回来的是一个变量month
+                  if (month >= t_value) {
+                    return h('Tag', {
+                      props: { color: '#19be6b' }
+                    }, month)
+                  } else if (month <= l_limit) {
+                    return h('Tag', {
+                      props: { color: '#ed4014' }
+                    }, month)
+                  } else {
+                    return h('Tag', {
+                      props: { color: '#ff9900' }
+                    }, month)
+                  }
+                }
+              })
+            }
           }
-          this.inputList[3] = this.kpiList
-          console.log(this.inputList, 90909090)
+          // for (let i = result.values.r_value.length - 1; i >= 0; i--) {
+          //   this.columns.splice(4, 0, {
+          //     title: this.monthList[i],
+          //     key: this.monthList[i],
+          //     align: 'center',
+          //     render: (h, params) => {
+          //       let t_value = this.t_value[0]
+          //       let l_limit = this.l_limit[0]
+          //       const month = this.kpiList[i]
+          //       // 做数据大小的判断,显示不同的颜色,并且return回来的是一个变量month
+          //       if (month >= t_value) {
+          //         return h('Tag', {
+          //           props: { color: '#19be6b' }
+          //         }, month)
+          //       } else if (month <= l_limit) {
+          //         return h('Tag', {
+          //           props: { color: '#ed4014' }
+          //         }, month)
+          //       } else {
+          //         return h('Tag', {
+          //           props: { color: '#ff9900' }
+          //         }, month)
+          //       }
+          //     }
+          //   })
+          // }
+          this.inputList = result
         }
       )
     },

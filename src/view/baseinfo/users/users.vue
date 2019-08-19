@@ -313,6 +313,7 @@ export default {
         this.loading = true
         getUsersList(this.getParams).then(
           res => {
+            console.log(res, 66666)
             this.List = res.data.results
             this.total = res.data.count
             this.loading = false
