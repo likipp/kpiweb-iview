@@ -128,12 +128,10 @@ export default {
           for (let i = result.length - 1; i >= 0; i--) {
             let ab = result[i].value.r_value
             let abc = Object.entries(ab)
-            console.log(abc, 88888)
-            for (let y = result[i].value.r_value.length - 1; y >= 0; y--) {
-              console.log(result[i].value.r_value.length[1])
+            for (let y = abc.length - 1; y >= 0; y--) {
               this.columns.splice(4, 0, {
-                title: this.monthList[y],
-                key: this.monthList[y],
+                title: abc[y][0],
+                key: abc[y][1],
                 align: 'center',
                 render: (h, params) => {
                   let t_value = this.t_value[0]
