@@ -12,7 +12,7 @@
       <div style="text-align: center">
         <Row>
           <Col span="24">
-            <Table stripe border :columns="columns" :data="List" :loading="loading"></Table>
+            <Table :columns="columns" :data="List" :loading="loading"></Table>
           </Col>
         </Row>
       </div>
@@ -97,6 +97,11 @@ export default {
       },
       columns: [
         {
+          type: 'selection',
+          width: 60,
+          align: 'center'
+        },
+        {
           title: '序号',
           type: 'index',
           align: 'center',
@@ -142,6 +147,19 @@ export default {
           align: 'center',
           render: (h, params) => {
             return h('Span', {}, params.row.dep.name)
+          }
+        },
+        {
+          title: '所属组',
+          align: 'center',
+          render: (h, params) => {
+            let groupList = []
+            for (let i = 0; i < params.row.groups.length; i++) {
+              groupList.push(params.row.groups[i].name)
+            }
+            return h('Span', groupList.map(function (item, index) {
+              return h('Tag', { props: { color: 'red' } }, item)
+            }))
           }
         },
         {

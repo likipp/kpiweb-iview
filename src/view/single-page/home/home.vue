@@ -8,7 +8,7 @@
           </Select>
         </FormItem>
         <FormItem label="请选择指标: ">
-          <Select v-model="form.kpi" style="width: 200px" :disabled="!form.name">
+          <Select v-model="form.kpi" style="width: 200px" :disabled="!form.name" @on-change="kpichange">
             <Option v-for="kpi in formkpi" :key="kpi.id" :value="kpi.name">{{ kpi.name }}</Option>
           </Select>
         </FormItem>
@@ -56,17 +56,14 @@ export default {
       groupKpiList: [],
       formdep: [],
       kpi: [],
+      monthlist: [],
       formkpi: [],
       inputList: [],
       monthList: [],
-      kpiList: {},
-      t_value: [],
-      l_limit: [],
       form: {
         name: '',
         kpi: ''
       },
-      myTe: {},
       columns: [
         {
           title: '序号',
@@ -77,6 +74,7 @@ export default {
         {
           title: '指标名称',
           align: 'center',
+          width: 160,
           render: (h, params) => {
             return h('span', {}, params.row.kpi)
           }
@@ -85,14 +83,15 @@ export default {
           title: '下限值',
           key: '下限值',
           align: 'center',
+          width: '80px',
           render: (h, params) => {
-            console.log(params)
             return h('span', {}, params.row.value.l_limit)
           }
         },
         {
           title: '目标值',
           align: 'center',
+          width: '80px',
           render: (h, params) => {
             return h('span', {}, params.row.value.t_value)
           }
@@ -119,194 +118,118 @@ export default {
       )
     },
     handelPostGroupKpi () {
+      //  当切换部门时,删除表格中现在有的列数据, 只输入4代表从第4列开始删除到结尾的数据
+      this.columns.splice(4)
       let data = this.form
       selectData(data).then(
         res => {
           let result = Object.entries(Object.entries(res.data)[0][1]).map(([key, value]) => {
             return { value: value, kpi: key }
           })
-          for (let i = result.length - 1; i >= 0; i--) {
-            let ab = result[i].value.r_value
-            let abc = Object.entries(ab)
-            for (let y = abc.length - 1; y >= 0; y--) {
-              this.columns.splice(4, 0, {
-                title: abc[y][0],
-                key: abc[y][1],
-                align: 'center',
-                render: (h, params) => {
-                  let t_value = this.t_value[0]
-                  let l_limit = this.l_limit[0]
-                  const month = this.kpiList[y]
-                  // 做数据大小的判断,显示不同的颜色,并且return回来的是一个变量month
-                  if (month >= t_value) {
-                    return h('Tag', {
-                      props: { color: '#19be6b' }
-                    }, month)
-                  } else if (month <= l_limit) {
-                    return h('Tag', {
-                      props: { color: '#ed4014' }
-                    }, month)
-                  } else {
-                    return h('Tag', {
-                      props: { color: '#ff9900' }
-                    }, month)
-                  }
-                }
-              })
+          this.monthlist = []
+          const date = new Date()
+          for (let i = 12; i > 0; i--) {
+            if (i < 10) {
+              this.monthlist.push((date.getFullYear() + '').substr(2, 3) + '/' + 0 + i)
+            } else {
+              this.monthlist.push((date.getFullYear() + '').substr(2, 3) + '/' + i)
             }
           }
-          // for (let i = result.values.r_value.length - 1; i >= 0; i--) {
-          //   this.columns.splice(4, 0, {
-          //     title: this.monthList[i],
-          //     key: this.monthList[i],
-          //     align: 'center',
-          //     render: (h, params) => {
-          //       let t_value = this.t_value[0]
-          //       let l_limit = this.l_limit[0]
-          //       const month = this.kpiList[i]
-          //       // 做数据大小的判断,显示不同的颜色,并且return回来的是一个变量month
-          //       if (month >= t_value) {
-          //         return h('Tag', {
-          //           props: { color: '#19be6b' }
-          //         }, month)
-          //       } else if (month <= l_limit) {
-          //         return h('Tag', {
-          //           props: { color: '#ed4014' }
-          //         }, month)
-          //       } else {
-          //         return h('Tag', {
-          //           props: { color: '#ff9900' }
-          //         }, month)
-          //       }
-          //     }
-          //   })
-          // }
+          for (let i = 0; i < this.monthlist.length; i++) {
+            this.columns.splice(4, 0, {
+              title: this.monthlist[i],
+              key: this.monthlist[i],
+              align: 'center',
+              render: (h, params) => {
+                let r_values = Object.entries(Object.entries(params.row.value.r_value))
+                let t_value = Object.entries((Object.entries(params.row.value)))[0][1][1]
+                let l_limit = Object.entries((Object.entries(params.row.value)))[1][1][1]
+                for (let [index, r_value] of r_values) {
+                  if (r_value[0].substr(2, 6) === this.monthlist[i]) {
+                    if (r_value[1] >= t_value) {
+                      return h('Tag', {
+                        props: { color: '#19be6b' }
+                      }, r_value[1])
+                    } else if (r_value[1] < l_limit) {
+                      return h('Tag', {
+                        props: { color: '#ed4014' }
+                      }, r_value[1])
+                    } else {
+                      return h('Tag', {
+                        props: { color: '#ff9900' }
+                      }, r_value[1])
+                    }
+                  }
+                }
+                return h('Tag', 'NA')
+              }
+            })
+          }
           this.inputList = result
+          this.columns.splice(16)
         }
       )
     },
-    // handelPostGroupKpi () {
+    // handelPostKpi () {
+    //   this.columns.splice(4)
     //   let data = this.form
     //   selectData(data).then(
     //     res => {
-    //       // for (let i =0; i < res.data.length; i++) {
-    //       //   console.log(res.data[i], 888888)
-    //       // }]
-    //       // let arr = Object.keys(obj).map(key => obj[key])
-    //       let tem = Object.entries(res.data[this.form.name])
-    //       for (let i = 0; i < tem.length; i++) {
-    //         let kpi_month = Object.entries(tem[i][1].r_value)[i]
-    //         this.monthList.push(kpi_month[0])
-    //         this.kpiList.push(kpi_month[1])
-    //         this.t_value.push(tem[i][1].t_value)
-    //         this.l_limit.push(tem[i][1].l_limit)
-    //         this.kpi.push(tem[i][0])
-    //         // let te = new Map()
-    //         // te.set(i, { t_value: this.t_value, monthList: this.monthList, kpiList: this.kpiList })
-    //         // this.myTe = te
+    //       let result = Object.entries(Object.entries(res.data)[0][1]).map(([key, value]) => {
+    //         return { value: value, kpi: key }
+    //       })
+    //       for (let i = 0; i < this.monthlist.length; i++) {
+    //         this.columns.splice(4, 0, {
+    //           title: this.monthlist[i],
+    //           key: this.monthlist[i],
+    //           align: 'center',
+    //           render: (h, params) => {
+    //             let r_values = Object.entries(Object.entries(params.row.value.r_value))
+    //             let t_value = Object.entries((Object.entries(params.row.value)))[0][1][1]
+    //             let l_limit = Object.entries((Object.entries(params.row.value)))[1][1][1]
+    //             for (let [index, r_value] of r_values) {
+    //               if (r_value[0].substr(2, 6) === this.monthlist[i]) {
+    //                 if (r_value[1] >= t_value) {
+    //                   return h('Tag', {
+    //                     props: { color: '#19be6b' }
+    //                   }, r_value[1])
+    //                 } else if (r_value[1] < l_limit) {
+    //                   return h('Tag', {
+    //                     props: { color: '#ed4014' }
+    //                   }, r_value[1])
+    //                 } else {
+    //                   return h('Tag', {
+    //                     props: { color: '#ff9900' }
+    //                   }, r_value[1])
+    //                 }
+    //               }
+    //             }
+    //             return h('Tag', 'NA')
+    //           }
+    //         })
     //       }
-    //       // this.columsInit()
-    //       let myArray = []
-    //       let myObject = {}
-    //       for (let i = 0; i < this.monthList.length; i++) {
-    //         let key = this.monthList[i]
-    //         let val = this.kpiList[i]
-    //         myObject[key] = val
-    //       }
-    //       myArray = {
-    //         't_value': this.t_value[0],
-    //         'l_limit': this.l_limit[0],
-    //         'kpi': this.kpi
-    //       }
-    //       this.inputList = [Object.assign(myArray, myObject)]
-    //       console.log(this.inputList)
-    //       console.log(typeof (this.inputList))
+    //       this.inputList = result
+    //       this.columns.splice(16)
     //     }
     //   )
     // },
-    // handelgetInputList () {
-    //   getInputList(this.form).then(
-    //     res => {
-    //       // 重置列表为空,否则切换部门时,会保留上一个部门的数据
-    //       this.monthList = []
-    //       this.kpiList = []
-    //       this.t_value = []
-    //       this.l_limit = []
-    //       this.kpi = []
-    //       // 把自定义的数据删除掉,删除目标值后面的所有数据
-    //       this.columns.splice(4)
-    //       let arr = res.data.results
-    //       arr = arr.sort(compare)
-    //       for (let i = 0; i < arr.length; i++) {
-    //         this.monthList.push(arr[i].month.substr(0, 7))
-    //         this.kpiList.push(arr[i].r_value)
-    //         this.t_value.push(arr[i].t_value)
-    //         this.l_limit.push(arr[i].l_limit)
-    //         this.kpi = arr[i].kpi
-    //         let te = new Map()
-    //         let ab = arr[i].kpi.name
-    //         te.set(i, { t_value: this.t_value, monthList: this.monthList, kpiList: this.kpiList })
-    //         this.myTe = te
-    //       }
-    //       console.log(this.myTe, 3254565)
-    //       this.columsInit()
-    //       // 重新定义一个数组,传递给inputList充当Table的data
-    //       let myArray = []
-    //       let myObject = {}
-    //       for (let i = 0; i < this.monthList.length; i++) {
-    //         let key = this.monthList[i]
-    //         let val = this.kpiList[i]
-    //         myObject[key] = val
-    //       }
-    //       myArray = {
-    //         't_value': this.t_value[0],
-    //         'l_limit': this.l_limit[0],
-    //         'kpi': this.kpi.name
-    //       }
-    //       this.inputList = [Object.assign(myArray, myObject)]
-    //     }
-    //   )
-    // },
-    columsInit () {
-      for (let i = this.monthList.length - 1; i >= 0; i--) {
-        this.columns.splice(4, 0, {
-          title: this.monthList[i],
-          key: this.monthList[i],
-          align: 'center',
-          render: (h, params) => {
-            let t_value = this.t_value[0]
-            let l_limit = this.l_limit[0]
-            const month = this.kpiList[i]
-            // 做数据大小的判断,显示不同的颜色,并且return回来的是一个变量month
-            if (month >= t_value) {
-              return h('Tag', {
-                props: { color: '#19be6b' }
-              }, month)
-            } else if (month <= l_limit) {
-              return h('Tag', {
-                props: { color: '#ed4014' }
-              }, month)
-            } else {
-              return h('Tag', {
-                props: { color: '#ff9900' }
-              }, month)
-            }
-          }
-        })
-      }
-    },
     change (val) {
       this.formkpi = []
+      // this.inputList = []
+      this.monthlist = []
       let arr = this.groupKpiList
       for (let i = 0; i < arr.length; i++) {
         if (val === arr[i].dep.name) {
           this.formkpi.push(arr[i].kpi)
-          // this.kpi = Object.keys(this.formkpi)
-          // this.kpi = Object.keys(this.formkpi)
         }
       }
       this.handelPostGroupKpi()
-      // this.handelgetInputList()
+    },
+    kpichange (val) {
+      // this.inputList = []
+      // this.monthlist = []
+      this.form.kpi = val
+      this.handelPostGroupKpi()
     }
     // 动态更改单元格样式, 没测试成功, 查看资料需要在data中先设置cellClassName, 但是render回来的数据不知道怎么操作。。
     // test (params) {
@@ -316,7 +239,6 @@ export default {
     // }
   },
   created () {
-    // this.handelgetInputList()
     this.handelGetDepList()
     this.handelGetGroupKpiList()
   }

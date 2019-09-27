@@ -199,6 +199,7 @@ export default {
       getUsersList().then(
         res => {
           // this.userList = res.data.results
+          console.log(res.data.results)
           let users = res.data.results
           let c_user = Cookies.get('user')
           users.forEach((item) => {

@@ -1,9 +1,10 @@
 import axios from 'axios/index'
 
+axios.defaults.headers.patch['Content-Type'] = 'application/x-www-form-urlencoded'
+
 const departments = '/api/account/departments/'
 
 export function getDepList (params) {
-  console.log(params)
   return axios({
     url: departments,
     method: 'get',
@@ -12,6 +13,7 @@ export function getDepList (params) {
 }
 
 export function createDep (params) {
+  console.log(params, 77777)
   return axios.post(departments, params)
 }
 

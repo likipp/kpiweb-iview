@@ -428,6 +428,15 @@ export default [
           title: '用户管理'
         },
         component: () => import('@/view/baseinfo/users/users.vue')
+      },
+      {
+        path: 'groups',
+        name: '组管理',
+        meta: {
+          icon: 'md-filing',
+          title: '组管理'
+        },
+        component: () => import('@/view/baseinfo/groups/groups.vue')
       }
     ]
   },
