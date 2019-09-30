@@ -6,7 +6,7 @@
           <Icon type="ios-trash-outline" size="15" style="margin-bottom: 3px"></Icon>删除</Button>
         <Input v-model="getParams.search" placeholder="搜索" style="width: auto; margin-left: 5px;"
                @on-click="handleGetUserList"   @on-enter="handleGetUserList" clearable @on-clear="handleGetUserList" />
-        <Button @click="userModal = true" type="primary" style="float:right">
+        <Button @click="userModal = true, type='create'" type="primary" style="float:right">
         <Icon type="ios-add" size="15" style="margin-bottom: 3px"></Icon>新增用户</Button>
       </div>
       <div style="text-align: center">
@@ -58,6 +58,18 @@
         </Row>
         <Row>
           <Col span="12">
+            <FormItem label="所属组：" prop="groups">
+              <Select v-model="userForm.groups" multiple>
+                <Option v-for="groups in groupList" :value="groups.id" :key="groups.id">{{ groups.name }}</Option>
+              </Select>
+              <span>
+                {{ userForm.groups }}
+              </span>
+            </FormItem>
+          </Col>
+        </Row>
+        <Row>
+          <Col span="12">
             <FormItem label="系统身份: " prop="">
               <Checkbox label="is_active" v-model="userForm.is_active" prop="is_active">已激活</Checkbox>
               <Checkbox label="is_staff" v-model="userForm.is_staff" prop="is_staff">登录后台</Checkbox>
@@ -79,6 +91,7 @@
 <script>
 import { getUsersList, deleteUser, updateUser, createUser } from '../../../api/account/users'
 import { getDepList } from '../../../api/account/departments'
+import { getGroupsList } from '../../../api/account/groups'
 import { Button } from 'iview'
 
 export default {
@@ -165,54 +178,69 @@ export default {
         {
           title: '状态',
           align: 'center',
-          filters: [
-            {
-              label: '已激活',
-              value: 1
-            },
-            {
-              label: '未激活',
-              value: 2
-            }
-          ],
-          filterMultiple: false,
-          filterMethod (value, row) {
-            if (value === 1) {
-              return row.is_staff === true
-            } else if (value === 2) {
-              return row.is_staff === false
-            }
-          },
+          // filters: [
+          //   {
+          //     label: '已激活',
+          //     value: 1
+          //   },
+          //   {
+          //     label: '未激活',
+          //     value: 2
+          //   }
+          // ],
+          // filterMultiple: false,
+          // filterMethod (value, row) {
+          //   if (value === 1) {
+          //     return row.is_staff === true
+          //   } else if (value === 2) {
+          //     return row.is_staff === false
+          //   }
+          // },
           render: (h, params) => {
-            // 普通写法时。
-            if (params.row.is_staff === true) {
-              return h('div', [
-                h('span', { style: { marginRight: '3px' } }, '已激活'),
-                h('Icon', {
-                  props: {
-                    type: 'ios-checkmark-circle-outline'
-                  },
-                  style: {
-                    fontSize: '18px',
-                    color: '#19be6b'
-                  }
-                })
-              ])
-            } else if (params.row.is_staff === false) {
-              // 设置一个div，然后再div下重新生成两个h()，分别做为span,icon标签
-              return h('div', [
-                h('span', { style: { marginRight: '3px' } }, '未激活'),
-                h('Icon', {
-                  props: {
-                    type: 'ios-close-circle-outline'
-                  },
-                  style: {
-                    fontSize: '18px',
-                    color: 'red'
-                  }
-                })
-              ])
+            const iconMap = {
+              true: { 'icon': 'ios-checkmark-circle-outline', 'color': '#19be6b' },
+              false: { 'icon': 'ios-close-circle-outline', 'color': 'red' }
             }
+            let status = []
+            let superuser = params.row.is_superuser
+            let active = params.row.is_active
+            let staff = params.row.is_staff
+            status.push(h('span', {}, '管理员'))
+            status.push(h('Icon', { props: { type: iconMap[superuser].icon }, style: { marginRight: '8px', color: iconMap[superuser].color, fontSize: '18px' } }))
+            status.push(h('span', {}, '已激活'))
+            status.push(h('Icon', { props: { type: iconMap[active].icon }, style: { marginRight: '8px', color: iconMap[active].color, fontSize: '18px' } }))
+            status.push(h('span', {}, '登录后台'))
+            status.push(h('Icon', { props: { type: iconMap[staff].icon }, style: { marginRight: '8px', color: iconMap[staff].color, fontSize: '18px' } }))
+            return h('span', {}, status)
+            // 普通写法时。
+            // if (params.row.is_staff === true) {
+            //   return h('div', [
+            //     h('span', { style: { marginRight: '3px' } }, '已激活'),
+            //     h('Icon', {
+            //       props: {
+            //         type: 'ios-checkmark-circle-outline'
+            //       },
+            //       style: {
+            //         fontSize: '18px',
+            //         color: '#19be6b'
+            //       }
+            //     })
+            //   ])
+            // } else if (params.row.is_staff === false) {
+            //   // 设置一个div，然后再div下重新生成两个h()，分别做为span,icon标签
+            //   return h('div', [
+            //     h('span', { style: { marginRight: '3px' } }, '未激活'),
+            //     h('Icon', {
+            //       props: {
+            //         type: 'ios-close-circle-outline'
+            //       },
+            //       style: {
+            //         fontSize: '18px',
+            //         color: 'red'
+            //       }
+            //     })
+            //   ])
+            // }
             // 三目运算，简写
             // const row = params.row
             // const color = row.is_staff === true ? 'success' : 'error'
@@ -249,6 +277,8 @@ export default {
                     this.userForm.is_staff = params.row.is_staff
                     this.userForm.is_active = params.row.is_active
                     this.userForm.is_superuser = params.row.is_superuser
+                    this.userForm.groups = params.row.groups
+                    console.log(this.userForm.groups, 7777)
                     this.userForm.id = params.row.id
                   }
                 },
@@ -292,6 +322,7 @@ export default {
         }
       ],
       depList: [],
+      groupList: [],
       List: [],
       editIndex: -1,
       loading: false,
@@ -301,6 +332,8 @@ export default {
         password: '',
         role: 'user',
         dep: 0,
+        groups: [],
+        // { id: 0, name: '' }
         is_active: true,
         is_staff: false,
         is_superuser: false
@@ -320,7 +353,13 @@ export default {
       getDepList().then(
         res => {
           this.depList = res.data.results
-          console.log(res.data)
+        }
+      )
+    },
+    handelGetGroupList () {
+      getGroupsList().then(
+        res => {
+          this.groupList = res.data.results
         }
       )
     },
@@ -331,7 +370,6 @@ export default {
         this.loading = true
         getUsersList(this.getParams).then(
           res => {
-            console.log(res, 66666)
             this.List = res.data.results
             this.total = res.data.count
             this.loading = false
@@ -420,6 +458,7 @@ export default {
   created () {
     this.handleGetUserList()
     this.handelGetDepList()
+    this.handelGetGroupList()
   },
   computed: {
     submitDisabled () {
