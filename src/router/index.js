@@ -1,9 +1,10 @@
 import Vue from 'vue'
 import Router from 'vue-router'
 import routes from './routers'
-import store from '@/store'
+// import store from '@/store'
 import iView from 'iview'
-import { setToken, getToken, canTurnTo, setTitle } from '@/libs/util'
+// import { setToken, getToken, canTurnTo, setTitle } from '@/libs/util'
+import { getToken, setTitle } from '@/libs/util'
 import config from '@/config'
 // import Cookies from 'js-cookie'
 

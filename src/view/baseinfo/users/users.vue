@@ -59,12 +59,12 @@
         <Row>
           <Col span="12">
             <FormItem label="所属组：" prop="groups">
-              <Select v-model="userForm.groups" multiple>
+              <Select v-model="userForm.groups" multiple v-if="type === 'create'">
                 <Option v-for="groups in groupList" :value="groups.id" :key="groups.id">{{ groups.name }}</Option>
               </Select>
-              <span>
-                {{ userForm.groups }}
-              </span>
+              <Select v-model="userForm.groups" multiple v-else>
+                <Option v-for="groups in groupList" :value="groups.id" :key="groups.id">{{ groups.name }}</Option>
+              </Select>
             </FormItem>
           </Col>
         </Row>
@@ -102,7 +102,6 @@ export default {
       userModal: false,
       type: 'create',
       total: 1,
-      errorMes: '',
       getParams: {
         page: 1,
         page_size: 10,
@@ -277,8 +276,11 @@ export default {
                     this.userForm.is_staff = params.row.is_staff
                     this.userForm.is_active = params.row.is_active
                     this.userForm.is_superuser = params.row.is_superuser
-                    this.userForm.groups = params.row.groups
-                    console.log(this.userForm.groups, 7777)
+                    let idList = []
+                    for (let i = 0; i < params.row.groups.length; i++) {
+                      idList.push(params.row.groups[i].id)
+                    }
+                    this.userForm.groups = idList
                     this.userForm.id = params.row.id
                   }
                 },
