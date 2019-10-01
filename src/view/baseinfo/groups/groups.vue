@@ -13,7 +13,20 @@
           <Table stripe border :columns="columns" :data="List" :loading="loading"></Table>
         </div>
       </Card>
-      <Modal class-name="vertical-center-modal" v-model="groupModal" title="新增组" width="500" draggable scrollable>
+      <Modal class-name="vertical-center-modal" v-model="groupModal" title="新增组" width="700" draggable scrollable>
+        <Form :model="groupForm">
+          <FormItem label="组名：" :label-width="100">
+            <Input v-model="groupForm.name" palceholer="请输入组名"></Input>
+          </FormItem>
+<!--          <Col span="24">-->
+<!--            -->
+<!--          </Col>-->
+          <FormItem label="权限:">
+            <Transfer filterable :operations="['删除', '添加']">
+
+            </Transfer>
+          </FormItem>
+        </Form>
         <div slot="footer">
           <Button size="large" @click="cancel">取消</Button>
           <Button type="primary" size="large" @click="handleCreateGroup">确定</Button>
@@ -32,7 +45,7 @@ export default {
     return {
       groupModal: false,
       groupForm: {
-
+        name: ''
       },
       loading: false,
       memberList: [],
@@ -83,7 +96,20 @@ export default {
         },
         {
           title: '权限',
-          align: 'center'
+          align: 'center',
+          render: (h, params) => {
+            let permissionList = []
+            for (let i = 0; i < params.row.group_permissions.length; i++) {
+              permissionList.push(params.row.group_permissions[i].name)
+            }
+            return h('span', permissionList.map(function (item, index) {
+              return h('Tag', {
+                props: {
+                  color: 'purple'
+                }
+              }, item)
+            }))
+          }
         },
         {
           title: '操作',
@@ -140,6 +166,7 @@ export default {
       getGroupsList().then(
         res => {
           this.List = res.data.results
+          console.log(this.List, 77777)
         }
       )
     },
