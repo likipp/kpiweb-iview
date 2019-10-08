@@ -7,7 +7,7 @@
         </Button>
         <Input v-model="getParams.search" placeholder="搜索" style="width:auto; margin-left:5px"
                @click="handleGetGroupKpiList" @on-enter="handleGetGroupKpiList" clearable @on-clear="handleGetGroupKpiList"></Input>
-        <Button @click="groupKpiModal = true" type="primary" style="float:right">
+        <Button @click="groupKpiModal = true, type='create'" type="primary" style="float:right">
           <Icon type="ios-add" size="15" style="margin-bottom:3px"></Icon>新增部门指标
         </Button>
       </div>
@@ -28,7 +28,7 @@
         <Row>
           <Col span="11">
             <FormItem label="部门: " prop="dep">
-              <Select v-model="groupKpiForm.dep">
+              <Select v-model="groupKpiForm.dep" clearable @on-change="handleChangeDep">
                 <Option v-for="dep in depList" :value="dep.id" :key="dep.id">{{ dep.name }}</Option>
               </Select>
             </FormItem>
@@ -74,8 +74,7 @@
       </Form>
       <div slot="footer">
         <Button size="large" @click="cancel">取消</Button>
-        <Button type="primary" size="large" v-if="type === 'create'"
-                @click="handleCreateDepKpi">确定</Button>
+        <Button type="primary" size="large" v-if="type === 'create'" @click="handleCreateDepKpi">确定</Button>
         <Button type="primary" size="large" v-else @click="handleUpdateDepKpi">修改</Button>
       </div>
     </Modal>
@@ -295,6 +294,17 @@ export default {
         }
       )
     },
+    handleChangeDep (val) {
+      // console.log(this.depList)
+      // console.log(val, this.depList[1].id)
+      for (let i = 0; i < this.depList.length; i++) {
+        let prep = []
+        if (val === this.depList[i].id) {
+          prep = this.depList[i].prep_kpi
+          this.kpiFormat(prep)
+        }
+      }
+    },
     handleGetGroupKpiList () {
       getGroupKpiList().then(
         res => {
@@ -340,9 +350,16 @@ export default {
       for (let value of this.targetKeys.values()) {
         data.kpi = value
       }
+      this.$refs[data].validate((valid) => {
+        if (valid) {
+          this.$Message.success('Success!')
+        } else {
+          this.$Message.error('Fail!')
+        }
+      })
       createGroupList(data).then(
         res => {
-          this.$Message.success(`${data.dep}下的指标新建成功`)
+          this.$Message.success('指标新建成功')
           this.groupKpiModal = false
           this.$refs['groupKpiForm'].resetFields()
           this.targetKeys = []

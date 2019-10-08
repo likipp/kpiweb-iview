@@ -378,7 +378,7 @@ export default [
     name: 'KPI',
     component: Main,
     meta: {
-      icon: 'md-menu',
+      icon: 'ios-analytics',
       title: '多级菜单'
     },
     children: [
@@ -387,7 +387,7 @@ export default [
         name: 'KPI基础',
         meta: {
           title: 'KPI基础',
-          icon: 'ios-settings-outline'
+          icon: 'md-clipboard'
         },
         component: () => import('@/view/kpibase/baseinfo.vue')
       },
@@ -396,7 +396,7 @@ export default [
         name: '部门指标',
         meta: {
           title: '部门指标',
-          icon: 'ios-settings-outline'
+          icon: 'ios-pulse'
         },
         component: () => import('@/view/kpibase/depkpi.vue')
       }
