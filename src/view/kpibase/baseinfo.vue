@@ -73,7 +73,7 @@ import { getKpiList, createKpi, updateKpi, deleteKpi } from '../../api/kpi/base'
 import { Button } from 'iview'
 
 export default {
-  name: 'base',
+  name: 'baseinfo',
   data () {
     return {
       total: 1,

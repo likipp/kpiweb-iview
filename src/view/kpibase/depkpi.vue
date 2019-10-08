@@ -61,8 +61,8 @@
         </Row>
         <Row>
           <Col span="24">
-            <FormItem label="部门指标: ">
-              <Transfer :data="kpiList" :target-keys="targetKeys" :list-style="listStyle"
+            <FormItem label="部门指标: " prop="kpi">
+              <Transfer :data="kpiList" :target-keys="targetKeys" :list-style="listStyle" v-model="groupKpiForm.kpi"
                         @on-change="handleCreateChange" :operations="['删除', '添加']" :titles="title" filterable :filter-method="filterMethod">
 <!--                <div :style="{float: 'right', margin: '5px'}">-->
 <!--                  <Button size="small">刷新</Button>-->
@@ -74,7 +74,7 @@
       </Form>
       <div slot="footer">
         <Button size="large" @click="cancel">取消</Button>
-        <Button type="primary" size="large" v-if="type === 'create'" @click="handleCreateDepKpi">确定</Button>
+        <Button type="primary" size="large" v-if="type === 'create'" @click="handleCreateDepKpi('groupKpiForm')">确定</Button>
         <Button type="primary" size="large" v-else @click="handleUpdateDepKpi">修改</Button>
       </div>
     </Modal>
@@ -119,11 +119,12 @@ export default {
         status: ''
       },
       ruleForm: {
-        dep: [{ required: true, message: '部门必须选择', trigger: 'blur' }],
-        status: [{ required: true, message: '状态必须选择', trigger: 'blur' }],
+        dep: [{ required: true, message: '部门必须选择', trigger: 'change' }],
+        status: [{ required: true, message: '状态必须选择', trigger: 'change' }],
         u_limit: [{ required: true, message: '上限值必须输入', trigger: 'blur' }],
         l_limit: [{ required: true, message: '下限值必须输入', trigger: 'blur' }],
-        t_value: [{ required: true, message: '目标值必须输入', trigger: 'blur' }]
+        t_value: [{ required: true, message: '目标值必须输入', trigger: 'blur' }],
+        kpi: [{ required: true, message: 'KPI必须选择', trigger: 'change' }]
       },
       columns: [
         {
@@ -344,28 +345,27 @@ export default {
         }
       )
     },
-    handleCreateDepKpi () {
+    handleCreateDepKpi (name) {
       let data = this.groupKpiForm
       // 默认this.targetKeys是数组(Array),而新建需要的是数值,所以要转换成数值
       for (let value of this.targetKeys.values()) {
         data.kpi = value
       }
-      this.$refs[data].validate((valid) => {
+      this.$refs[name].validate((valid) => {
         if (valid) {
-          this.$Message.success('Success!')
+          createGroupList(data).then(
+            res => {
+              this.$Message.success('指标新建成功')
+              this.groupKpiModal = false
+              this.$refs['groupKpiForm'].resetFields()
+              this.targetKeys = []
+              this.handleGetGroupKpiList()
+            }
+          )
         } else {
-          this.$Message.error('Fail!')
+          this.$Message.error('请检查数据是否都已经录入!')
         }
       })
-      createGroupList(data).then(
-        res => {
-          this.$Message.success('指标新建成功')
-          this.groupKpiModal = false
-          this.$refs['groupKpiForm'].resetFields()
-          this.targetKeys = []
-          this.handleGetGroupKpiList()
-        }
-      )
     },
     handleUpdateDepKpi () {
       const { id, ...params } = this.groupKpiForm
