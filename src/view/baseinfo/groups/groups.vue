@@ -166,7 +166,6 @@ export default {
       getGroupsList().then(
         res => {
           this.List = res.data.results
-          console.log(this.List, 77777)
         }
       )
     },
