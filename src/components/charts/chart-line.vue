@@ -231,6 +231,7 @@ export default {
       const chart = new G2.Chart({
         container: 'mountNode',
         // width: 700,
+        height: window.innerHeight,
         forceFit: true,
         padding: [20, 30, 30, 50]
       })
@@ -374,17 +375,17 @@ export default {
             stroke: '#ed4014',
             lineWidth: 1,
             lineDash: [3, 3]
+          },
+          text: {
+            position: 'start',
+            style: {
+              fill: '#8c8c8c',
+              fontSize: 15,
+              fontWeight: 'normal'
+            },
+            content: '下限值' + dv.origin[0].l_limit,
+            offsetY: -5
           }
-          // text: {
-          //   position: 'start',
-          //   style: {
-          //     fill: '#8c8c8c',
-          //     fontSize: 15,
-          //     fontWeight: 'normal'
-          //   },
-          //   content: '下限值' + dv.origin[0].l_limit,
-          //   offsetY: -5
-          // }
         })
         chart.guide().line({
           start: ['min', dv.origin[0].t_value],
@@ -393,17 +394,23 @@ export default {
             stroke: '#19be6b',
             lineWidth: 1,
             lineDash: [3, 3]
+          },
+          text: {
+            position: 'start',
+            style: {
+              fill: '#8c8c8c',
+              fontSize: 15,
+              fontWeight: 'normal'
+            },
+            content: '上限值' + dv.origin[0].t_value,
+            offsetY: -5
           }
-          // text: {
-          //   position: 'start',
-          //   style: {
-          //     fill: '#8c8c8c',
-          //     fontSize: 15,
-          //     fontWeight: 'normal'
-          //   },
-          //   content: '上限值' + dv.origin[0].t_value,
-          //   offsetY: -5
-          // }
+        })
+        chart.guide().regionFilter({
+          top: true,
+          start: ['min', dv.origin[0].l_limit],
+          end: ['max', 0],
+          color: '#ff4d4f'
         })
         chart.line().position('month*value').color('key').shape('smooth')
         chart.point().position('month*value').size(4).shape('circle').style({
