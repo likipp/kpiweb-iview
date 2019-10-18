@@ -26,7 +26,7 @@
             <!--                <Icon size="14" type="ios-lock-outline"></Icon>-->
             <!--              </span>-->
             <!--              </Input>-->
-            <Input type="password" v-model="form.password" placeholder="请输入密码">
+            <Input type="password" v-model="form.password" password placeholder="请输入密码">
               <Icon :size="16" type="ios-lock-outline" slot="prefix"></Icon>
             </Input>
           </FormItem>

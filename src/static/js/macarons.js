@@ -54,7 +54,7 @@
         tooltip: {
             backgroundColor: 'rgba(50,50,50,0.5)',
             axisPointer : {
-                type : 'line',
+                type : 'chart-line.vue',
                 lineStyle : {
                     color: '#008acd'
                 },

@@ -8,7 +8,7 @@
           </Select>
         </FormItem>
         <FormItem label="请选择指标: ">
-          <Select v-model="form.kpi" style="width: 200px" :disabled="!form.name" @on-change="kpichange">
+          <Select v-model="form.kpi" style="width: 200px" clearable :disabled="!form.name" @on-change="kpiChange">
             <Option v-for="kpi in formkpi" :key="kpi.id" :value="kpi.name">{{ kpi.name }}</Option>
           </Select>
         </FormItem>
@@ -22,7 +22,7 @@
           </Row>
           <Row>
             <Col span="24">
-            <Table stripe border :columns="columns" :data="this.inputList"></Table>
+              <Table stripe border :columns="columns" :data="this.inputList"></Table>
             </Col>
           </Row>
         </div>
@@ -30,17 +30,15 @@
     </Row>
     <Row>
       <Card>
-        <Dashboard :value=monthList style="height: 600px;" :search="this.form.name"></Dashboard>
+<!--        <Dashboard :value=monthList style="height: 600px;" :search="this.form.name"></Dashboard>-->
+        <chart-line :search=this.form v-if="reFresh"></chart-line>
       </Card>
     </Row>
   </div>
 </template>
 
 <script>
-// import { ChartPie, ChartBar } from '_c/charts'
-// import Example from './example.vue'
-import Dashboard from '../../components/dashboard'
-// import { getInputList } from '../../../api/kpi/kpiinput'
+import Charts from '_c/charts/chart-line'
 import { getDepList } from '../../../api/account/departments'
 import { getGroupKpiList } from '../../../api/kpi/groupkpi'
 // import { compare } from '../../utils/compare'
@@ -49,7 +47,8 @@ import { selectData } from '../../../api/kpi/kpidash'
 export default {
   name: 'home',
   components: {
-    Dashboard
+    // Dashboard,
+    'chart-line': Charts
   },
   data () {
     return {
@@ -64,6 +63,7 @@ export default {
         name: '',
         kpi: ''
       },
+      reFresh: false,
       columns: [
         {
           title: '序号',
@@ -119,6 +119,10 @@ export default {
     },
     handelPostGroupKpi () {
       //  当切换部门时,删除表格中现在有的列数据, 只输入4代表从第4列开始删除到结尾的数据
+      this.reFresh = false
+      this.$nextTick(() => {
+        this.reFresh = true
+      })
       this.columns.splice(4)
       let data = this.form
       selectData(data).then(
@@ -144,20 +148,20 @@ export default {
                 let r_values = Object.entries(Object.entries(params.row.value.r_value))
                 let t_value = Object.entries((Object.entries(params.row.value)))[0][1][1]
                 let l_limit = Object.entries((Object.entries(params.row.value)))[1][1][1]
-                for (let [index, r_value] of r_values) {
-                  if (r_value[0].substr(2, 6) === this.monthlist[i]) {
-                    if (r_value[1] >= t_value) {
+                for (const r_value of r_values) {
+                  if (r_value[1][0].substr(2, 6) === this.monthlist[i]) {
+                    if (r_value[1][1] >= t_value) {
                       return h('Tag', {
                         props: { color: '#19be6b' }
-                      }, r_value[1])
-                    } else if (r_value[1] < l_limit) {
+                      }, r_value[1][1])
+                    } else if (r_value[1][1] < l_limit) {
                       return h('Tag', {
                         props: { color: '#ed4014' }
-                      }, r_value[1])
+                      }, r_value[1][1])
                     } else {
                       return h('Tag', {
                         props: { color: '#ff9900' }
-                      }, r_value[1])
+                      }, r_value[1][1])
                     }
                   }
                 }
@@ -215,8 +219,8 @@ export default {
     // },
     change (val) {
       this.formkpi = []
-      // this.inputList = []
       this.monthlist = []
+      // this.form = []
       let arr = this.groupKpiList
       for (let i = 0; i < arr.length; i++) {
         if (val === arr[i].dep.name) {
@@ -224,10 +228,12 @@ export default {
         }
       }
       this.handelPostGroupKpi()
+      // this.reFresh = false
+      // this.$nextTick(() => {
+      //   this.reFresh = true
+      // })
     },
-    kpichange (val) {
-      // this.inputList = []
-      // this.monthlist = []
+    kpiChange (val) {
       this.form.kpi = val
       this.handelPostGroupKpi()
     }

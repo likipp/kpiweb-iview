@@ -90,7 +90,6 @@ export default {
           // setToken(res.data.token)
           Cookies.set('name', username)
           commit('setToken', res.data.token)
-          console.log(status, 77777)
           resolve()
         }).catch(error => {
           reject(new Error('用户名或者密码错误'), error)

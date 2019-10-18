@@ -437,6 +437,24 @@ export default [
           title: '组管理'
         },
         component: () => import('@/view/baseinfo/groups/groups.vue')
+      },
+      {
+        path: 'tree',
+        name: '组织结构树',
+        meta: {
+          icon: 'md-git-merge',
+          title: '组织结构树'
+        },
+        component: () => import('@/view/baseinfo/tree/tree.vue')
+      },
+      {
+        path: 'dashboard',
+        name: '图表',
+        meta: {
+          icon: 'ios-pie',
+          title: '图表'
+        },
+        component: () => import('@/view/baseinfo/dashboard.vue')
       }
     ]
   },

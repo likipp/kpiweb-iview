@@ -12,7 +12,7 @@
           </Col>
           <Col span="8" offset="1">
             <FormItem label="指标名: " prop="kpi">
-              <Select v-model="dataForm.kpi">
+              <Select v-model="dataForm.kpi" @on-change="check_date">
                 <Option v-for="kpi in kpiList" :key="kpi.kpi.id" :value="kpi.kpi.id">{{ kpi.kpi.name }}</Option>
               </Select>
             </FormItem>
@@ -40,8 +40,8 @@
             </FormItem>
           </Col>
           <Col span="2" style="padding: 5px 5px">%</Col>
-          <Col span="6" style="text-align: center">
-            <Alert type="warning" show-icon>注意：录入及修改日期为每月1~15号！</Alert>
+          <Col span="8" style="text-align: center">
+            <Alert type="warning" show-icon>注意：录入及修改日期为每月{{this.in_time}}~{{this.mo_time}}号.如果不在区间内,提交按钮不可用！</Alert>
           </Col>
         </Row>
         <Row>
@@ -66,12 +66,12 @@
               <Input type="textarea" :rows="4" v-model="dataForm.notice"></Input>
             </FormItem>
           </Col>
-          <Col span="7" style="text-align: center;padding: 25px 25px">
+          <Col span="6" style="text-align: center;padding: 25px 25px">
             <Alert>可输入指标数值原因或行动对策。</Alert>
           </Col>
         </Row>
         <FormItem>
-          <Button type="primary" @click="handleCreateInput">提交</Button>
+          <Button type="primary" @click="handleCreateInput" :disabled=this.check>提交</Button>
           <Button style="margin-left: 8px" @click="handleReset('dataForm')">重置</Button>
         </FormItem>
       </Form>
@@ -99,6 +99,9 @@ export default {
       groupKpiList: [],
       inputList: [],
       kpis: '',
+      in_time: '',
+      mo_time: '',
+      check: false,
       dataForm: {
         kpi: '',
         month: '',
@@ -109,6 +112,9 @@ export default {
         // 此处t_value, l_limit用来做v-if, v-else判断使用
         t_value: '',
         l_limit: ''
+      },
+      depName: {
+        search: ''
       },
       columns: [
         {
@@ -121,14 +127,14 @@ export default {
           title: '部门',
           align: 'center',
           render: (h, params) => {
-            return h('span', {}, params.row.dep.name)
+            return h('span', {}, params.row.dep)
           }
         },
         {
           title: '指标名',
           align: 'center',
           render: (h, params) => {
-            return h('span', {}, params.row.kpi.name)
+            return h('span', {}, params.row.kpi)
           }
         },
         {
@@ -153,7 +159,7 @@ export default {
           title: '录入人',
           align: 'center',
           render: (h, params) => {
-            return h('span', {}, params.row.user.name)
+            return h('span', {}, params.row.user)
           }
         },
         {
@@ -199,24 +205,23 @@ export default {
       getUsersList().then(
         res => {
           // this.userList = res.data.results
-          console.log(res.data.results)
           let users = res.data.results
-          let c_user = Cookies.get('user')
+          // name是浏览器中Cookies中的名字,在store/module/user.js中定义
+          let c_user = Cookies.get('name')
           users.forEach((item) => {
             if (c_user === item.username) {
               let id = { 'id': item.id }
               let nickname = { 'nickname': item.nickname }
-              let in_user = Object.assign(id, nickname)
-              this.dataForm.user = in_user
-              console.log(this.dataForm.user, 22222)
+              this.dataForm.user = Object.assign(id, nickname)
             }
           })
         }
       )
     },
     handleGetInputList () {
-      getInputList().then(
+      getInputList(this.depName).then(
         res => {
+          console.log(this.depName)
           this.inputList = res.data.results
         }
       )
@@ -254,15 +259,35 @@ export default {
       this.kpiList = []
       // 遍历arr里面的部门ID， 与传递过来的val作比较,相同的添加到kpiList中并传递到Select选择框中.val是iview Select中on-change的默认返回值
       let arr = this.groupKpiList
-      // console.log(val, arr, arr[0].dep.id)
       for (let i = 0; i < arr.length; i++) {
         if (val === arr[i].dep.id) {
+          this.depName.search = arr[i].dep.name
           this.kpiList.push(arr[i])
         }
       }
+      this.handleGetInputList()
     },
     in_date (value) {
       this.dataForm.month = value
+    },
+    // 取到KPI指标时,根据指标的录入日期与当前时间做判断,如果不在录入日期区间内,则不充许提交
+    check_date (value) {
+      for (let i = 0; i < this.kpiList.length; i++) {
+        // console.log(this.kpiList[i].kpi.id)
+        if (this.kpiList[i].kpi.id === value) {
+          this.in_time = this.kpiList[i].in_time
+          this.mo_time = this.kpiList[i].mo_time
+        }
+      }
+      let cur_date = new Date().getDate()
+      // if (this.in_time < cur_date && this.mo_time > cur_date) {
+      //   this.check = false
+      // } else {
+      //   this.check = true
+      // }
+      // 只要有一个为true,则结果为true
+      // this.check = !(this.in_time < cur_date < this.mo_time)
+      this.check = !(this.in_time < cur_date && this.mo_time > cur_date)
     }
   },
   created () {
@@ -274,6 +299,7 @@ export default {
   watch: {
     // 监视dataFom.kpi数据变化,当其有值时,将它关联的t_value,l_limit赋值到dataForm中,通过双向绑定传递到span标签中
     'dataForm.kpi': function () {
+      console.log(this.dataForm)
       let arr = this.groupKpiList
       let i = arr.length
       while (i--) {

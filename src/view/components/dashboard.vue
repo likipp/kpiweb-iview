@@ -8,7 +8,6 @@ import echarts from 'echarts'
 import { on, off } from '@/libs/tools'
 import { getInputList } from '../../api/kpi/kpiinput'
 // import { selectData } from '../../api/kpi/kpidash'
-
 export default {
   name: 'dashboard',
   props: [
@@ -162,7 +161,6 @@ export default {
     }
   },
   created () {
-
   },
   watch: {
     search: function (newVal, oldVal) {
@@ -180,5 +178,4 @@ export default {
 </script>
 
 <style scoped>
-
 </style>

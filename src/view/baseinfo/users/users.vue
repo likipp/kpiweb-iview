@@ -12,7 +12,7 @@
       <div style="text-align: center">
         <Row>
           <Col span="24">
-            <Table :columns="columns" :data="List" :loading="loading"></Table>
+            <Table :columns="columns" :data="List" :loading="loading" border></Table>
           </Col>
         </Row>
       </div>
@@ -52,7 +52,7 @@
           </Col>
           <Col span="12">
             <FormItem label="密码: " prop="password">
-              <Input type="password" v-model="userForm.password" placeholder="密码必须大于6位数"></Input>
+              <Input type="password" v-model="userForm.password" password placeholder="密码必须大于6位数"></Input>
             </FormItem>
           </Col>
         </Row>
@@ -130,6 +130,8 @@ export default {
         {
           title: '用户名',
           align: 'center',
+          resizable: true,
+          width: 180,
           render: (h, params) => {
             return h('div', [
               h('Icon', {
@@ -144,6 +146,8 @@ export default {
         {
           title: '姓名',
           align: 'center',
+          resizable: true,
+          width: 180,
           render: (h, params) => {
             if (params.row.nickname) {
               return h('Tag', {
@@ -437,7 +441,7 @@ export default {
     },
     // 模态框中的取消按钮。
     cancel () {
-      this.$Message.success('取消操作')
+      this.$Message.info({ background: true, content: '取消操作', closable: true, duration: 5 })
       this.userModal = false
       this.userForm.is_superuser = false
       this.userForm.is_staff = false

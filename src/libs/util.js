@@ -2,6 +2,7 @@ import Cookies from 'js-cookie'
 // cookie保存的天数
 import config from '@/config'
 import { forEach, hasOneOf, objEqual } from '@/libs/tools'
+import clonedeep from 'clonedeep'
 const { title, cookieExpires, useI18n } = config
 
 export const TOKEN_KEY = 'token'
@@ -396,4 +397,45 @@ export const setTitle = (routeItem, vm) => {
   const pageTitle = showTitle(handledRoute, vm)
   const resTitle = pageTitle ? `${title} - ${pageTitle}` : title
   window.document.title = resTitle
+}
+
+export const depTree = (depList) => {
+  // console.log(depList, 88888)
+  const depListCloned = clonedeep(depList)
+  // console.log(depListCloned, depList)
+  return depListCloned.map(depItem => {
+    // console.log(depItem, depItem.id, 6666)
+    const depId = depItem.id
+    let index = depListCloned.length
+    while (--index >= 0) {
+      const parent = depListCloned[index].parent
+      if (parent.id === depId) {
+        const dep = depListCloned.splice(index, 1)[0]
+        dep.title = dep.name
+        if (depItem.children) depItem.children.push(dep)
+        else depItem.children = [dep]
+      }
+    }
+    console.log(depItem)
+    return depItem
+  })
+}
+
+export const transToTree = depList => {
+  if (!depList.length) return []
+  const depListCloned = clonedeep(depList)
+  const handle = id => {
+    let arr = []
+    depListCloned.forEach(dep => {
+      if (dep.id === id) {
+        const children = []
+        dep.title = dep.name
+        if (dep.children) dep.children = [].concat(dep.children, children)
+        else dep.children = children
+        arr.push(dep)
+      }
+    })
+    return arr
+  }
+  return handle(4)
 }
