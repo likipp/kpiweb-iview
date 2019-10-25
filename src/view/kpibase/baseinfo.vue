@@ -218,6 +218,7 @@ export default {
         this.loading = true
         getKpiList(this.getParams).then(
           res => {
+            console.log(res.data, 66666)
             this.kpiList = res.data.results
             this.total = res.data.count
             this.loading = false

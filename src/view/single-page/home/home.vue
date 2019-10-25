@@ -127,6 +127,7 @@ export default {
       let data = this.form
       selectData(data).then(
         res => {
+          console.log(res.data, 66666)
           let result = Object.entries(Object.entries(res.data)[0][1]).map(([key, value]) => {
             return { value: value, kpi: key }
           })
@@ -149,7 +150,7 @@ export default {
                 let t_value = Object.entries((Object.entries(params.row.value)))[0][1][1]
                 let l_limit = Object.entries((Object.entries(params.row.value)))[1][1][1]
                 for (const r_value of r_values) {
-                  if (r_value[1][0].substr(2, 6) === this.monthlist[i]) {
+                  if (r_value[1][0].substr(2, 5) === this.monthlist[i]) {
                     if (r_value[1][1] >= t_value) {
                       return h('Tag', {
                         props: { color: '#19be6b' }

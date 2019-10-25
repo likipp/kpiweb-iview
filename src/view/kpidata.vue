@@ -221,7 +221,7 @@ export default {
     handleGetInputList () {
       getInputList(this.depName).then(
         res => {
-          console.log(this.depName)
+          console.log(res, 2222)
           this.inputList = res.data.results
         }
       )

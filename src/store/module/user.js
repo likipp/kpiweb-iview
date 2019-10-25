@@ -7,7 +7,7 @@
 //   // restoreTrash,
 //   // getUnreadCount
 // } from '@/api/user'
-import { Login } from '@/api/account/users'
+import { Login, Verify, Refresh } from '@/api/account/users'
 import { setToken, getToken } from '@/libs/util'
 import Cookies from 'js-cookie'
 
@@ -76,16 +76,8 @@ export default {
     // 登录
     handleLogin ({ commit }, { username, password }) {
       // userName = userName.trim()
+      // Auth({ username, password })
       return new Promise((resolve, reject) => {
-      //   Login({
-      //     userName,
-      //     password
-      //   }).then(res => {
-      //     commit('setToken', res.data.token)
-      //     resolve()
-      //   }).catch(err => {
-      //     reject(err)
-      //   })
         Login({ username, password }).then(res => {
           // setToken(res.data.token)
           Cookies.set('name', username)
@@ -96,6 +88,31 @@ export default {
         })
       })
     },
+    // 认证
+    authorization ({ commit }, token) {
+      return new Promise((resolve, reject) => {
+        Verify({ token }).then(res => {
+          if (parseInt(res.status) === 400) {
+            reject(new Error('token已过期'))
+          } else {
+            Refresh({ token }).then(res => {
+              setToken(res.data.token)
+              resolve()
+            })
+          }
+        }).catch((error) => {
+          reject(error)
+        })
+      })
+    },
+    // 刷新
+    // refresh ({ commit }, token) {
+    //   return new Promise((resolve, reject) => {
+    //     Refresh({ token }).then(res => {
+    //       console.log(res, 7890)
+    //     })
+    //   })
+    // },
     // 退出登录
     // handleLogOut ({ state, commit }) {
     //   return new Promise((resolve, reject) => {
@@ -122,7 +139,6 @@ export default {
         try {
           getUserInfo(state.token).then(res => {
             const data = res.data
-            console.log(data, 6666)
             commit('setAvator', data.avator)
             commit('setUserName', data.name)
             commit('setUserId', data.user_id)

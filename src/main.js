@@ -17,6 +17,10 @@ import '@/assets/icons/iconfont.css'
 import TreeTable from 'tree-table-vue'
 import VOrgTree from 'v-org-tree'
 import 'v-org-tree/dist/v-org-tree.css'
+import axios from 'axios'
+import { getToken } from '@/libs/util'
+// import Cookies from 'js-cookie'
+
 // 实际打包时应该不引入mock
 /* eslint-disable */
 // if (process.env.NODE_ENV !== 'production') require('@/mock')
@@ -46,6 +50,22 @@ Vue.prototype.$config = config
  */
 importDirective(Vue)
 Vue.directive('clickOutside', clickOutside)
+
+axios.interceptors.request.use(
+  config => {
+    const  token = getToken()
+    config.headers.Authorization = `JWT ${token}`
+    return config
+  }, error => {
+    return Promise.reject(error)
+  }
+)
+
+// axios.interceptors.response.use(function (response) {
+//   if (response.data.code === 10010 || response.data.code === 10011) {
+//     removeToken()
+//   }
+// })
 
 /* eslint-disable no-new */
 new Vue({

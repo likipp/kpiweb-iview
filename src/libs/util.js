@@ -17,6 +17,11 @@ export const getToken = () => {
   else return false
 }
 
+// export const removeToken = () => {
+//   Cookies.remove('name', { path: '' })
+//   return true
+// }
+
 export const hasChild = (item) => {
   return item.children && item.children.length !== 0
 }

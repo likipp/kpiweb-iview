@@ -47,6 +47,15 @@ export default [
           icon: 'md-home'
         },
         component: () => import('@/view/single-page/home')
+      },
+      {
+        path: '/personal-center',
+        name: '修改密码',
+        meta: {
+          hideInMenu: true,
+          title: '修改密码',
+          notCached: true
+        }
       }
     ]
   },
@@ -446,16 +455,16 @@ export default [
           title: '组织结构树'
         },
         component: () => import('@/view/baseinfo/tree/tree.vue')
-      },
-      {
-        path: 'dashboard',
-        name: '图表',
-        meta: {
-          icon: 'ios-pie',
-          title: '图表'
-        },
-        component: () => import('@/view/baseinfo/dashboard.vue')
       }
+      // {
+      //   path: 'dashboard',
+      //   name: '图表',
+      //   meta: {
+      //     icon: 'ios-pie',
+      //     title: '图表'
+      //   },
+      //   component: () => import('@/view/baseinfo/dashboard.vue')
+      // }
     ]
   },
   // {

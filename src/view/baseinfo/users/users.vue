@@ -51,13 +51,6 @@
             </FormItem>
           </Col>
           <Col span="12">
-            <FormItem label="密码: " prop="password">
-              <Input type="password" v-model="userForm.password" password placeholder="密码必须大于6位数"></Input>
-            </FormItem>
-          </Col>
-        </Row>
-        <Row>
-          <Col span="12">
             <FormItem label="所属组：" prop="groups">
               <Select v-model="userForm.groups" multiple v-if="type === 'create'">
                 <Option v-for="groups in groupList" :value="groups.id" :key="groups.id">{{ groups.name }}</Option>
@@ -65,6 +58,14 @@
               <Select v-model="userForm.groups" multiple v-else>
                 <Option v-for="groups in groupList" :value="groups.id" :key="groups.id">{{ groups.name }}</Option>
               </Select>
+            </FormItem>
+          </Col>
+        </Row>
+        <Row>
+          <Col span="12">
+            <FormItem label="密码: " prop="password">
+              <Input type="password" v-model="userForm.password" password placeholder="密码必须大于6位数" v-if="type === 'create'"></Input>
+              <Input type="password" v-model="userForm.password" password placeholder="密码必须大于6位数" v-else></Input>
             </FormItem>
           </Col>
         </Row>

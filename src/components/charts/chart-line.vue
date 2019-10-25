@@ -342,7 +342,6 @@ export default {
             return row
           }
         })
-        console.log(dv.origin[0].l_limit, dv.origin[0].t_value)
         chart.source(dv, {
           month: {
             type: 'timeCat',
